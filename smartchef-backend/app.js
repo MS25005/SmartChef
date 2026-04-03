@@ -1,12 +1,29 @@
+console.log("RUNNING THIS FILE");
 require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
+const Recipe = require('./models/Recipe');
 
 const app = express();
 
-// Middleware
+// Middleware (ORDER MATTERS)
+app.use(cors());
 app.use(express.json());
-app.use(express.static('static'));
+
+// Debug logger (AFTER middleware)
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
+
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.log(err));
+
+// Routes
 
 // Health check
 app.get('/health', (req, res) => {
@@ -18,7 +35,16 @@ app.get('/', (req, res) => {
   res.send('SmartChef API is running');
 });
 
-// Recipe suggestion route (basic)
+// Test routes
+app.get('/test', (req, res) => {
+  res.send("GET works");
+});
+
+app.post('/test', (req, res) => {
+  res.send("POST works");
+});
+
+// Recipe suggestion (basic AI placeholder)
 app.post('/recipes/suggest', (req, res) => {
   const { ingredients } = req.body;
 
@@ -33,18 +59,44 @@ app.post('/recipes/suggest', (req, res) => {
   });
 });
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
+// Save recipe
+app.post('/recipes', async (req, res) => {
+  try {
+    const { title, ingredients, instructions } = req.body;
 
-// Start server
+    const recipe = new Recipe({
+      title,
+      ingredients,
+      instructions
+    });
+
+    await recipe.save();
+
+    res.status(201).json({
+      message: 'Recipe saved successfully',
+      recipe
+    });
+  } catch (error) {
+    console.error(error); // ADD THIS
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get recipes
+app.get('/recipes', async (req, res) => {
+  try {
+    const recipes = await Recipe.find();
+    res.json(recipes);
+  } catch (error) {
+    console.error(error); // ADD THIS
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+// Start server (ALWAYS LAST)
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-
-require('dotenv').config();
-
-
