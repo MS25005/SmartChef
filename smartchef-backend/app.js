@@ -5,6 +5,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Recipe = require('./models/Recipe');
+const aiRoutes = require('./routes/ai');
 
 const app = express();
 
@@ -44,6 +45,10 @@ app.post('/test', (req, res) => {
   res.send("POST works");
 });
 
+
+
+
+
 // Recipe suggestion (basic AI placeholder)
 app.post('/recipes/suggest', (req, res) => {
   const { ingredients } = req.body;
@@ -77,7 +82,7 @@ app.post('/recipes', async (req, res) => {
       recipe
     });
   } catch (error) {
-    console.error(error); // ADD THIS
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -88,12 +93,13 @@ app.get('/recipes', async (req, res) => {
     const recipes = await Recipe.find();
     res.json(recipes);
   } catch (error) {
-    console.error(error); // ADD THIS
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
 
-
+// AI routes
+app.use('/ai', aiRoutes);
 
 // Start server (ALWAYS LAST)
 const PORT = process.env.PORT || 8000;
