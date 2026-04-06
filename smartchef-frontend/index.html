@@ -9,8 +9,47 @@
 <body>
 
   <div class="container">
-    <h1>SmartChef</h1>
-    <p>Enter your ingredients and get a recipe instantly.</p>
+    <h1>🍳 SmartChef</h1>
+    <p class="subtitle">Enter your ingredients and get an AI-generated recipe instantly.</p>
+
+    <!-- SECTION 1: Ingredient Input (Issue #18) -->
+    <section id="generate-section">
+      <h2>Generate a Recipe</h2>
+
+      <div class="input-row">
+        <input
+          type="text"
+          id="ingredient-input"
+          placeholder="e.g. eggs, tomato, cheese"
+        />
+        <button id="add-btn">Add</button>
+      </div>
+
+      <ul id="ingredient-list"></ul>
+
+      <button id="generate-btn" class="primary-btn">✨ Generate Recipe</button>
+
+      <div id="loading" class="hidden">Generating your recipe...</div>
+
+      <!-- Where the AI recipe result will appear -->
+      <div id="recipe-result" class="hidden">
+        <h3 id="recipe-title"></h3>
+        <p><strong>Prep time:</strong> <span id="recipe-prep"></span></p>
+        <p><strong>Difficulty:</strong> <span id="recipe-difficulty"></span></p>
+        <h4>Instructions</h4>
+        <p id="recipe-instructions"></p>
+        <button id="save-btn" class="secondary-btn">💾 Save Recipe</button>
+      </div>
+    </section>
+
+    <hr />
+
+    <!-- SECTION 2: Saved Recipes (Issue #19) -->
+    <section id="saved-section">
+      <h2>Saved Recipes</h2>
+      <button id="load-recipes-btn" class="secondary-btn">🔄 Load Saved Recipes</button>
+      <div id="saved-recipes-list"></div>
+    </section>
   </div>
 
   <script src="script.js"></script>
