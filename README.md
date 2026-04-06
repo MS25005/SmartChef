@@ -1,0 +1,38 @@
+# SmartChef AI - Project Proposal
+
+## App Name & Description
+
+**SmartChef AI** is an intelligent recipe assistant that helps users discover delicious meals based on ingredients they already have at home. Users simply input available ingredients, and SmartChef AI generates personalized recipe suggestions, complete with cooking instructions and nutritional insights. The app is perfect for home cooks looking to reduce food waste, save money, and find inspiration for daily meals.
+
+---
+## Features
+
+- **Ingredient-based Recipe Search** (AI-Powered) - Find recipes using ingredients you have
+- **AI Recipe Generation** (AI-Powered) - Create custom recipes from any ingredients
+- **Recipe Instructions & Cooking Tips** (AI-Powered) - Step-by-step guidance
+- **Nutritional Information** (AI-Powered) - AI-generated nutrition estimates
+- **Dietary Filtering** (AI-Powered) - Filter by vegan, gluten-free, and more
+- **Recipe Saving** - Save favorites to your collection
+- **Recipe History** - View past recipes
+
+---
+
+## Tech Stack
+
+| Technology | Purpose | Justification |
+|------------|---------|---------------|
+| **Node.js + Express** | Backend API | Lightweight, fast, and excellent for RESTful API development |
+| **MongoDB + Mongoose** | Database | Flexible document storage perfect for recipe data; easy to scale |
+| **Gemini API** | AI Recipe Generation | Powerful LLM for creative recipe generation and natural language processing |
+| **HTML/CSS/JS** | Frontend | Simple, lightweight client-side interface for rapid prototyping |
+| **dotenv** | Environment Management | Securely manage API keys and configuration |
+
+---
+
+## Team Members
+
+| Member | Role | Ownership Areas |
+|--------|------|-----------------|
+| **Abdulrahim** | fronted devoloper
+| **Minhaaj** | DevOps Engineer
+| **Fayez** | Backend developer
