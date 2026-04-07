@@ -1,4 +1,9 @@
 {
+  "start": "node server.js",
+  "scripts": {
+    "test": "jest --runInBand --detectOpenHandles"
+  },
+
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "dotenv": "^17.3.1",
