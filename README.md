@@ -42,7 +42,6 @@
 
 | Week | Goal | Key Deliverables |
 |------|------|------------------|
-| **Week 11** (Apr 1-5) | Foundation & Proposal | GitHub repo with project board, MongoDB connected, app skeleton running in Docker, proposal approved |
-| **Week 12** (Apr 6-12) | Core Development & CI | All features implemented, AI recipe generation working, 12+ unit tests, CI pipeline green on every push/PR |
-| **Week 13** (Apr 13-19) | Deployment & Presentation Prep | Live app on Render.com, full CI/CD pipeline auto-deploy, presentation slides ready, demo rehearsed |
-| **Week 14** (Apr 20-22) | Final Presentation | 10-15 min presentation with live CI/CD demo, Q&A |
+| **Week 11** | Foundation & Proposal | GitHub repo with project board, MongoDB connected, app skeleton running in Docker, proposal approved |
+| **Week 12** | Core Development & CI | All features implemented, AI recipe generation working, 12+ unit tests, CI pipeline green on every push/PR |
+| **Week 13** | Deployment & Presentation Prep | Live app on Render.com, full CI/CD pipeline auto-deploy, presentation slides ready, demo rehearsed |
