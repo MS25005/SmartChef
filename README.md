@@ -33,6 +33,6 @@
 
 | Member | Role | Ownership Areas |
 |--------|------|-----------------|
-| **Abdulrahim** | fronted devoloper
-| **Minhaaj** | DevOps Engineer
-| **Fayez** | Backend developer
+| **Abdulrahim** | fronted devoloper | 	UI design & implementation, API integration, user experience, frontend performance
+| **Minhaaj** | DevOps Engineer | Servers, deployments, CI/CD pipelines, cloud infrastructure, uptime & monitoring
+| **Fayez** | Backend developer | APIs, databases, business logic, authentication, server-side code
