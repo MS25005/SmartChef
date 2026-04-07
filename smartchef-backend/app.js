@@ -19,11 +19,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
-
+// MongoDB connection (test option included for jest)
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log(err));
+}
 // Routes
 
 // Health check
@@ -101,8 +102,5 @@ app.get('/recipes', async (req, res) => {
 // AI routes
 app.use('/ai', aiRoutes);
 
-// Start server (ALWAYS LAST)
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// App is exported to seperate applciation logic and network server
+module.exports = app;
