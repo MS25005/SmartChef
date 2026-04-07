@@ -3,7 +3,25 @@
 // Issue #19: Saved recipes display
 // Issue #20: API integration
 
-const API_URL = 'http://localhost:8000'; // Change to deployed URL later
+// Auto-detect backend URL: use deployed URL in production, localhost in dev
+const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000'
+  : 'https://YOUR-DEPLOYED-BACKEND-URL.onrender.com'; // ← the real URL here
+
+
+// Check backend health on page load
+async function checkBackendHealth() {
+  try {
+    const res = await fetch(`${API_URL}/health`);
+    const data = await res.json();
+    if (data.status === 'OK') {
+      console.log('Backend connected ✅');
+    }
+  } catch (err) {
+    console.warn('Backend not reachable. Working in offline mode.');
+  }
+}
+checkBackendHealth();
 
 // ---- Ingredient list state ----
 let ingredients = [];
