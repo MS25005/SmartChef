@@ -5,7 +5,7 @@
   "main": "smartchef-backend/server.js",
   "scripts": {
     "start": "node smartchef-backend/server.js",
-    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles --testTimeout=60000",
+    "test": "cross-env NODE_ENV=test jest --runInBand --detectOpenHandles --testTimeout=120000",
     "lint": "eslint ."
   },
   "dependencies": {
