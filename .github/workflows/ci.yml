@@ -21,29 +21,25 @@ jobs:
         with:
           node-version: 18
 
-      # 3. Install libssl1.1 for mongodb community server
-      - name: Install libssl1.1
-        run: sudo apt-get update && sudo apt-get install -y libssl1.1
-
-      # 4. Install dependencies
+      # 3. Install dependencies
       - name: Install dependencies
         working-directory: smartchef-backend
         run: npm install
 
-      # 5. Run linter
+      # 4. Run linter
       - name: Run linter
         run: npm run lint || echo "No lint script found"
 
-      # 6. Run tests
+      # 5. Run tests
       - name: Run tests
         working-directory: smartchef-backend
         run: npm test
 
-      # 7. Build Docker image
+      # 6. Build Docker image
       - name: Build Docker image
         run: docker build -t smartchef-app ./smartchef-backend
 
-      # 8. Smoke test
+      # 7. Smoke test
       - name: Run container
         run: docker run -d -p 8000:8000 --name test-container smartchef-app
 
