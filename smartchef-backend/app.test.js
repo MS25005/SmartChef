@@ -12,7 +12,11 @@ global.fetch = jest.fn();
 beforeAll(async () => {
   process.env.NODE_ENV = 'test';
 
-  mongoServer = await MongoMemoryServer.create();
+  mongoServer = await MongoMemoryServer.create({
+    binary: {
+      version: '6.0.7', // modern MongoDB version
+    },
+  });
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
 });
