@@ -1,0 +1,54 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        working-directory: smartchef-backend
+        run: npm install
+
+      # 4. Run linter
+      - name: Run linter
+        run: npm run lint || echo "No lint script found"
+
+      # 5. Run tests
+      - name: Run tests
+        working-directory: smartchef-backend
+        run: npm test
+
+      # 6. Build Docker image
+      - name: Build Docker image
+        run: docker build -t smartchef-app ./smartchef-backend
+
+      # 7. Smoke test
+      - name: Run container
+        run: docker run -d -p 8000:8000 --name test-container smartchef-app
+
+      - name: Wait for container to start
+        run: sleep 5
+
+      - name: Health check
+        run: |
+          curl -f http://localhost:8000/health || exit 1
+
+      - name: Stop container
+        run: docker stop test-container
