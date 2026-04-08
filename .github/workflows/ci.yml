@@ -33,6 +33,7 @@ jobs:
       # 5. Run tests
       - name: Run tests
         working-directory: smartchef-backend
+        run: npm test
 
       # 6. Build Docker image
       - name: Build Docker image

@@ -1,8 +1,8 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const Recipe = require('../smartchef-backend/models/Recipe');
-const app = require('../smartchef-backend/app');
+const Recipe = require('./models/Recipe');
+const app = require('./app');
 
 let mongoServer;
 
