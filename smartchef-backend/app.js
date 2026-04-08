@@ -1,5 +1,5 @@
 console.log("RUNNING THIS FILE");
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -19,12 +19,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB connection (test option included for jest)
-if (process.env.NODE_ENV !== 'test') {
+// MongoDB connection
   mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.log(err));
-}
+
 // Routes
 
 // Health check
