@@ -14,7 +14,7 @@ beforeAll(async () => {
 
   mongoServer = await MongoMemoryServer.create({
     binary: {
-      version: '6.0.5', // modern MongoDB version
+      version: '5.0.15', // older version
     },
   });
   const uri = mongoServer.getUri();
