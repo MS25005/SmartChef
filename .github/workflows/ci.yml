@@ -37,7 +37,7 @@ jobs:
 
       # 6. Build Docker image
       - name: Build Docker image
-        run: docker build -t smartchef-app .
+        run: docker build -t smartchef-app /smartchef-backend/DockerFile
 
       # 7. Smoke test
       - name: Run container
