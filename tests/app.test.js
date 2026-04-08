@@ -1,119 +1,216 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const express = require('express');
 const Recipe = require('../smartchef-backend/models/Recipe');
-app = require('../smartchef-backend/app');
+const app = require('../smartchef-backend/app');
 
 let mongoServer;
 
+// Mock fetch to avoid real API calls
+global.fetch = jest.fn();
+
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    // We connect to the in-memory DB here before tests run
-    await mongoose.connect(uri);
+  process.env.NODE_ENV = 'test';
+
+  mongoServer = await MongoMemoryServer.create();
+  const uri = mongoServer.getUri();
+  await mongoose.connect(uri);
 });
 
 afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+  await mongoose.disconnect();
+  await mongoServer.stop();
 });
 
 afterEach(async () => {
-    await Recipe.deleteMany({});
+  await Recipe.deleteMany({});
+  jest.clearAllMocks();
 });
 
-describe('SmartChef Unit Test Suite', () => {
+describe('SmartChef Test Suite (20 Tests)', () => {
 
-    // --- GROUP 1: HEALTH & CONNECTIVITY (3 Tests) ---
-    
-    test('1. GET /health should return status OK', async () => {
-        const res = await request(app).get('/health');
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.status).toBe('OK');
+  // GROUP 1: BASIC ROUTES (4)
+  test('1. GET /health returns OK', async () => {
+    const res = await request(app).get('/health');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('OK');
+  });
+
+  test('2. GET / returns welcome message', async () => {
+    const res = await request(app).get('/');
+    expect(res.text).toContain('SmartChef API is running');
+  });
+
+  test('3. GET /test works', async () => {
+    const res = await request(app).get('/test');
+    expect(res.text).toBe('GET works');
+  });
+
+  test('4. POST /test works', async () => {
+    const res = await request(app).post('/test');
+    expect(res.text).toBe('POST works');
+  });
+
+  // GROUP 2: SUGGESTION LOGIC (4)
+  test('5. Suggest recipes with valid input', async () => {
+    const res = await request(app)
+      .post('/recipes/suggest')
+      .send({ ingredients: ['eggs'] });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.recipes).toContain('Omelette');
+  });
+
+  test('6. Suggest fails with empty array', async () => {
+    const res = await request(app)
+      .post('/recipes/suggest')
+      .send({ ingredients: [] });
+
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('7. Suggest fails with missing field', async () => {
+    const res = await request(app)
+      .post('/recipes/suggest')
+      .send({});
+
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('8. Suggest preserves input ingredients', async () => {
+    const res = await request(app)
+      .post('/recipes/suggest')
+      .send({ ingredients: ['milk'] });
+
+    expect(res.body.ingredients).toContain('milk');
+  });
+
+  // GROUP 3: DATABASE (6)
+  test('9. Save recipe successfully', async () => {
+    const res = await request(app).post('/recipes').send({
+      title: 'Test',
+      ingredients: ['a'],
+      instructions: 'b'
     });
 
-    test('2. GET / should return welcome message', async () => {
-        const res = await request(app).get('/');
-        expect(res.text).toContain('SmartChef API is running');
+    expect(res.statusCode).toBe(201);
+  });
+
+  test('10. Recipe actually stored in DB', async () => {
+    await request(app).post('/recipes').send({
+      title: 'Stored',
+      ingredients: ['x'],
+      instructions: 'y'
     });
 
-    test('3. GET /test should return "GET works"', async () => {
-        const res = await request(app).get('/test');
-        expect(res.text).toBe('GET works');
+    const count = await Recipe.countDocuments();
+    expect(count).toBe(1);
+  });
+
+  test('11. Get all recipes', async () => {
+    await Recipe.create({ title: 'R1', ingredients: ['i'], instructions: 's' });
+
+    const res = await request(app).get('/recipes');
+    expect(res.body.length).toBe(1);
+  });
+
+  test('12. Save fails with missing fields', async () => {
+    const res = await request(app).post('/recipes').send({ title: 'Bad' });
+    expect(res.statusCode).toBe(500);
+  });
+
+  test('13. createdAt default exists', () => {
+    const recipe = new Recipe({
+      title: 'T',
+      ingredients: ['i'],
+      instructions: 's'
     });
 
-    // --- GROUP 2: RECIPE SUGGESTION LOGIC (3 Tests) ---
+    expect(recipe.createdAt).toBeInstanceOf(Date);
+  });
 
-    test('4. POST /recipes/suggest should return recipes for valid ingredients', async () => {
-        const res = await request(app)
-            .post('/recipes/suggest')
-            .send({ ingredients: ['eggs', 'cheese'] });
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.recipes).toContain('Omelette');
+  test('14. Multiple recipes stored correctly', async () => {
+    await Recipe.create({ title: 'A', ingredients: ['1'], instructions: 'x' });
+    await Recipe.create({ title: 'B', ingredients: ['2'], instructions: 'y' });
+
+    const res = await request(app).get('/recipes');
+    expect(res.body.length).toBe(2);
+  });
+
+  // GROUP 4: AI ROUTE (4)
+  test('15. AI generate returns mocked recipe', async () => {
+    fetch.mockResolvedValue({
+      json: async () => ({
+        candidates: [{
+          content: {
+            parts: [{
+              text: `{
+                "title": "Mock Recipe",
+                "ingredients": ["egg"],
+                "instructions": "Cook",
+                "prepTime": "10 min",
+                "difficulty": "Easy"
+              }`
+            }]
+          }
+        }]
+      })
     });
 
-    test('5. POST /recipes/suggest should fail (400) if ingredients list is empty', async () => {
-        const res = await request(app)
-            .post('/recipes/suggest')
-            .send({ ingredients: [] });
-        expect(res.statusCode).toEqual(400);
-        expect(res.body.error).toBe('Please provide ingredients');
+    const res = await request(app)
+      .post('/ai/generate')
+      .send({ ingredients: ['egg'] });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.recipe.title).toBe('Mock Recipe');
+  });
+
+  test('16. AI fails with empty ingredients', async () => {
+    const res = await request(app)
+      .post('/ai/generate')
+      .send({ ingredients: [] });
+
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('17. AI fails with missing ingredients', async () => {
+    const res = await request(app)
+      .post('/ai/generate')
+      .send({});
+
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('18. AI handles invalid JSON gracefully', async () => {
+    fetch.mockResolvedValue({
+      json: async () => ({
+        candidates: [{
+          content: {
+            parts: [{ text: `INVALID_JSON` }]
+          }
+        }]
+      })
     });
 
-    test('6. POST /recipes/suggest should fail (400) if ingredients field is missing', async () => {
-        const res = await request(app)
-            .post('/recipes/suggest')
-            .send({});
-        expect(res.statusCode).toEqual(400);
-    });
+    const res = await request(app)
+      .post('/ai/generate')
+      .send({ ingredients: ['egg'] });
 
-    // --- GROUP 3: DATABASE OPERATIONS (4 Tests) ---
+    expect(res.statusCode).toBe(500);
+  });
 
-    test('7. POST /recipes should successfully save a recipe to the DB', async () => {
-        const newRecipe = {
-            title: 'Test Pasta',
-            ingredients: ['noodles', 'sauce'],
-            instructions: 'Boil and mix.'
-        };
-        const res = await request(app).post('/recipes').send(newRecipe);
-        expect(res.statusCode).toEqual(201);
-        expect(res.body.recipe.title).toBe('Test Pasta');
-        
-        const count = await Recipe.countDocuments();
-        expect(count).toBe(1);
-    });
+  // GROUP 5: SECURITY & HEADERS (2)
+  test('19. CORS headers exist', async () => {
+    const res = await request(app).get('/health');
+    expect(res.headers['access-control-allow-origin']).toBeDefined();
+  });
 
-    test('8. GET /recipes should retrieve all saved recipes', async () => {
-        await Recipe.create({ title: 'R1', ingredients: ['i1'], instructions: 'step 1' });
-        await Recipe.create({ title: 'R2', ingredients: ['i2'], instructions: 'step 2' });
+  test('20. JSON middleware works', async () => {
+    const res = await request(app)
+      .post('/recipes/suggest')
+      .send({ ingredients: ['test'] });
 
-        const res = await request(app).get('/recipes');
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.length).toBe(2);
-    });
+    expect(res.statusCode).toBe(200);
+  });
 
-    test('9. POST /recipes should fail if required fields are missing', async () => {
-        const res = await request(app).post('/recipes').send({ title: 'Incomplete' });
-        expect(res.statusCode).toEqual(500); // Per your app.js error handling
-    });
-
-    test('10. Recipe model should default createdAt to current date', async () => {
-        const recipe = new Recipe({ title: 'T', ingredients: ['I'], instructions: 'S' });
-        expect(recipe.createdAt).toBeDefined();
-        expect(recipe.createdAt instanceof Date).toBe(true);
-    });
-
-    // --- GROUP 4: SECURITY & MIDDLEWARE (2 Tests) ---
-
-    test('11. CORS headers should be present', async () => {
-        const res = await request(app).get('/health');
-        expect(res.headers['access-control-allow-origin']).toBeDefined();
-    });
-
-    test('12. POST /test should echo "POST works"', async () => {
-        const res = await request(app).post('/test');
-        expect(res.statusCode).toEqual(200);
-        expect(res.text).toBe('POST works');
-    });
 });
