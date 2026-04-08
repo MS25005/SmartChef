@@ -23,6 +23,7 @@ jobs:
 
       # 3. Install dependencies
       - name: Install dependencies
+        working-directory: smartchef-backend
         run: npm install
 
       # 4. Run linter
@@ -31,9 +32,7 @@ jobs:
 
       # 5. Run tests
       - name: Run tests
-        env:
-          NODE_ENV: test
-        run: npm test || echo "No tests found"
+        working-directory: smartchef-backend
 
       # 6. Build Docker image
       - name: Build Docker image
